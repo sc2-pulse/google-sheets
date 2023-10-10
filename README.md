@@ -3,6 +3,9 @@ This library allows you to import data from the [SC2 Pulse](https://github.com/s
 
 ![sc2pulse-google-sheets](https://user-images.githubusercontent.com/63394805/221893541-f78f2cea-978f-450d-ae17-d2b52f916854.png)
 
+## Locale
+This library only works with English locales. Set any English(United States, United Kingdom, etc.) locale in your 
+sheet settings under File->Settings->Locale menu.
 
 ## Add the SC2Pulse library to your sheet
 * Sheets menu->Extensions->Apps Script
