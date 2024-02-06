@@ -11,6 +11,7 @@ const API_ROOT = URL_ROOT + "/api";
  * @return {string[][]} 2d string array, suitable for table
  */
 function summary1v1(characterIds, depth, sortBy = "rating_last") {
+  if(!Array.isArray(characterIds)) characterIds = Array.of(characterIds);
   const result = [];
   const summary = getSummaries(characterIds, depth);
   summary.sort(getSummarySort(sortBy));
