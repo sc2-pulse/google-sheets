@@ -3,6 +3,9 @@
 
 const URL_ROOT = "https://sc2pulse.nephest.com/sc2";
 const API_ROOT = URL_ROOT + "/api";
+const DEPTH_MAX = 120;
+const DEPTH_UNLIMITED_BATCH_SIZE = 1;
+const BATCH_SIZE = 50;
 
 /**
  * @param {number[]} characterIds
@@ -94,8 +97,9 @@ function snakeCaseToCamelCase(str){
  */
 function getSummaries(ids, depth){
   let result = [];
+  const batchSize = depth > DEPTH_MAX ? DEPTH_UNLIMITED_BATCH_SIZE : BATCH_SIZE;
   for(let from = 0; from < ids.length;) {
-    const to = Math.min(from + 50, ids.length);
+    const to = Math.min(from + batchSize, ids.length);
     const batch = ids.slice(from, to);
     const summaryUrl = `${API_ROOT}/character/${encodeURIComponent(batch.join(","))}/summary/1v1/${encodeURIComponent(depth)}`;
     result = result.concat(fetchJson(summaryUrl));
