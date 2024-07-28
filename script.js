@@ -207,3 +207,112 @@ function getCharacters(ids){
 function getCharacterMap(ids){
   return toMap(getCharacters(ids), c=>c.id);
 }
+
+/**
+ * @param {object} cursor
+ * @param {number} season - season id
+ * @param {object[]} [regions] - region filter
+ * @param {object[]} [leagues] - league filter
+ * @returns {object} pulled API JSON result
+ */
+function getLadder(cursor, season, regions = Object.values(Region), leagues = Object.values(League)){
+  let url = `${API_ROOT}/ladder/a/${encodeURIComponent(cursor.rating)}/${encodeURIComponent(cursor.id)}/1\
+?season=${encodeURIComponent(season)}\
+&queue=${TeamFormat._1V1.fullName}\
+&team-type=${TeamType.ARRANGED.fullName}\
+&page=1`;
+  for(const region of regions) url += "&" + region.name + "=true";
+  for(const league of leagues) url += "&" + league.shortName + "=true";
+  return fetchJson(url);
+}
+
+function getSeasons(){
+  return fetchJson(`${API_ROOT}/season/list/all`);
+}
+
+/**
+ * @param {number} count - team count
+ * @param {number} season - season id
+ * @param {object[]} [regions] - region filter
+ * @param {object[]} [leagues] - league filter
+ * @param {number} [ratingStart=10000]
+ * @returns {object[]} extracted teams
+ */
+function getLadderTeams(count, season, regions = Object.values(Region), leagues = Object.values(League), ratingStart = 10000) {
+  let teams = [];
+  let cursor = {rating: ratingStart + 1, id: 1};
+  while(teams.length < count){
+    const curPage = getLadder(cursor, season, regions, leagues).result;
+    if(curPage.length == 0) break;
+
+    teams = teams.concat(curPage);
+    cursor = teams[teams.length - 1];
+  }
+  if(teams.length > count) teams = teams.slice(0, count);
+  return teams;
+}
+
+function getFavoriteRace(member)
+{
+  return Object.values(Race)
+    .map(race=>[race, member[race.name + "GamesPlayed"] || 0])
+    .sort((a, b)=>b[1] - a[1])[0][0];
+}
+
+
+function revealTeamMember(member){
+  return member.proNickname || getCharacterName(member.character.name);
+}
+
+/**
+ * @param {Object} team
+ * @param {boolean} [reveal = false] - reveal player names when possible
+ * @returns {string[]} rendered team
+ */
+function renderTeam(team, reveal = false) {
+  return [
+    reveal ? revealTeamMember(team.members[0]) : getCharacterName(team.members[0].character.name),
+    getFavoriteRace(team.members[0]).name,
+    team.rating,
+    team.wins,
+    team.losses,
+    team.region,
+    enumOfId(team.league.type, League).name,
+    team.tierType != null ? team.tierType + 1 : "",
+    getCharacterLink(team.members[0].character.id)];
+}
+
+/**
+ * @param {number} count - number of ladder teams to pull
+ * @param {object[]} [regions] - region filter
+ * @param {object[]} [leagues] - league filter
+ * @param {number} [ratingStart=10000]
+ * @param {boolean} [reveal=false] - reveal player names when possible
+ * @param {number} [season] - season id, current season by default
+ * @returns {string[][]} 2d string array suitable for sheets table
+ */
+function ladder(
+  count,
+  regions = null,
+  leagues = null,
+  ratingStart = null,
+  reveal = null,
+  season = null){
+    if(!regions) regions = Object.values(Region).map(r=>r.name);
+    if(!Array.isArray(regions)) regions = Array.of(regions);
+    if(Array.isArray(regions[0])) regions = regions[0];
+    regions = regions.map(r=>enumOfName(r, Region));
+
+    if(!leagues) leagues = Array.from(Object.values(League)).map(l=>l.name);
+    if(!Array.isArray(leagues)) leagues = Array.of(leagues);
+    if(Array.isArray(leagues[0])) leagues = leagues[0];
+    leagues = leagues.map(l=>enumOfName(l, League));
+
+    if(!ratingStart) ratingStart = 10000;
+    if(reveal === null) reveal = false;
+    if(!season) season = getSeasons()[0].battlenetId;
+
+    return [["Player", "Race", "MMR", "Wins", "Losses", "Region", "League", "Tier", "SC2Pulse link"]]
+      .concat(getLadderTeams(count, season, regions, leagues, ratingStart)
+        .map(team=>renderTeam(team, reveal)));
+}

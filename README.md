@@ -24,6 +24,16 @@ function summary1v1(characterIds, depth, sortBy = "rating_last") {
 function summary1v1Clan(tag, region, depth, sortBy = "rating_last") {
   return SC2Pulse.summary1v1Clan(tag, region, depth, sortBy);
 }
+
+function ladder(
+  count,
+  regions = null,
+  leagues = null,
+  ratingStart = null,
+  reveal = null,
+  season = null){
+    return SC2Pulse.ladder(count, regions, leagues, ratingStart, reveal, season);
+}
 ```
 
 ## Import data from SC2 Pulse
@@ -59,6 +69,17 @@ Example: `=summary1v1({236695, 2918753}, 60)`
     * `RATING_LAST`
 
 Example: `=summary1v1Clan("Heroes", "EU", 30, "games")`
+
+### ladder
+`=ladder(teamCount, regions, leagues, ratingStart, reveal, season)`
+* `teamCount` Number of teams to load. Integer.
+* `regions` Optional region filter. String array.
+* `leagues` Optional league filter. String array.
+* `ratingStart` Optional MMR starting point, descending order. Integer. Default: 10000.
+* `reveal` Optional revealing of player names when possible. Boolean. Default: false.
+* `season` Optional season id. Integer. Default: current season.
+
+Example: `=ladder(600, {"us", "eu", "kr", "cn"}, {"bronze", "silver", "gold", "platinum", "diamond", "master", "grandmaster"}, 10000, false,)`
 
 ## Misc
 * [COUNTIF](https://support.google.com/docs/answer/3093480)
