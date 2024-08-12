@@ -30,9 +30,10 @@ function ladder(
   regions = null,
   leagues = null,
   ratingStart = null,
+  skipCheaters = null,
   reveal = null,
   season = null){
-    return SC2Pulse.ladder(count, regions, leagues, ratingStart, reveal, season);
+    return SC2Pulse.ladder(count, regions, leagues, ratingStart, skipCheaters, reveal, season);
 }
 ```
 
@@ -76,10 +77,11 @@ Example: `=summary1v1Clan("Heroes", "EU", 30, "games")`
 * `regions` Optional region filter. String array.
 * `leagues` Optional league filter. String array.
 * `ratingStart` Optional MMR starting point, descending order. Integer. Default: 10000.
+* `skipCheaters` Optional cheater filter. Boolean. Default: false.
 * `reveal` Optional revealing of player names when possible. Boolean. Default: false.
 * `season` Optional season id. Integer. Default: current season.
 
-Example: `=ladder(600, {"us", "eu", "kr", "cn"}, {"bronze", "silver", "gold", "platinum", "diamond", "master", "grandmaster"}, 10000, false,)`
+Example: `=ladder(600, {"us", "eu", "kr", "cn"}, {"bronze", "silver", "gold", "platinum", "diamond", "master", "grandmaster"}, 10000, false, false,)`
 
 ## Misc
 * [COUNTIF](https://support.google.com/docs/answer/3093480)

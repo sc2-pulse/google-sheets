@@ -236,15 +236,23 @@ function getSeasons(){
  * @param {object[]} [regions] - region filter
  * @param {object[]} [leagues] - league filter
  * @param {number} [ratingStart=10000]
+ * @param {boolean} [skipCheaters=false]
  * @returns {object[]} extracted teams
  */
-function getLadderTeams(count, season, regions = Object.values(Region), leagues = Object.values(League), ratingStart = 10000) {
+function getLadderTeams(count,
+    season,
+    regions = Object.values(Region),
+    leagues = Object.values(League),
+    ratingStart = 10000,
+    skipCheaters = false
+) {
   let teams = [];
   let cursor = {rating: ratingStart + 1, id: 1};
   while(teams.length < count){
-    const curPage = getLadder(cursor, season, regions, leagues).result;
+    let curPage = getLadder(cursor, season, regions, leagues).result;
     if(curPage.length == 0) break;
 
+    if(skipCheaters) curPage = curPage.filter(team=>team.members.every(member=>!member.restrictions));
     teams = teams.concat(curPage);
     cursor = teams[teams.length - 1];
   }
@@ -287,6 +295,7 @@ function renderTeam(team, reveal = false) {
  * @param {object[]} [regions] - region filter
  * @param {object[]} [leagues] - league filter
  * @param {number} [ratingStart=10000]
+ * @param {boolean} [skipCheaters=false]
  * @param {boolean} [reveal=false] - reveal player names when possible
  * @param {number} [season] - season id, current season by default
  * @returns {string[][]} 2d string array suitable for sheets table
@@ -296,6 +305,7 @@ function ladder(
   regions = null,
   leagues = null,
   ratingStart = null,
+  skipCheaters = null,
   reveal = null,
   season = null){
     if(!regions) regions = Object.values(Region).map(r=>r.name);
@@ -309,10 +319,11 @@ function ladder(
     leagues = leagues.map(l=>enumOfName(l, League));
 
     if(!ratingStart) ratingStart = 10000;
+    if(skipCheaters === null) skipCheaters = false;
     if(reveal === null) reveal = false;
     if(!season) season = getSeasons()[0].battlenetId;
 
     return [["Player", "Race", "MMR", "Wins", "Losses", "Region", "League", "Tier", "SC2Pulse link"]]
-      .concat(getLadderTeams(count, season, regions, leagues, ratingStart)
+      .concat(getLadderTeams(count, season, regions, leagues, ratingStart, skipCheaters)
         .map(team=>renderTeam(team, reveal)));
 }
