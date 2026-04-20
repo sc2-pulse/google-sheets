@@ -1,4 +1,9 @@
 # google-sheets
+
+## Archived
+**This library has been archived in favor of web API usage on GitHub pages via CORS.** 
+
+## Description
 This library allows you to import data from the [SC2 Pulse](https://github.com/sc2-pulse/sc2-pulse) API into Google Sheets.
 
 ![sc2pulse-google-sheets](https://user-images.githubusercontent.com/63394805/221893541-f78f2cea-978f-450d-ae17-d2b52f916854.png)
